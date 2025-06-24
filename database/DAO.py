@@ -40,15 +40,22 @@ class DAO:
     def getAllEdgesYear(year):
         cnx = DBConnect.get_connection()
         cursor = cnx.cursor(dictionary=True)
-        query = """SELECT p1.ID as u, p2.ID as v, p1.tot+p2.tot as weight
-                    FROM (SELECT t.ID, sum(s.salary) as tot
-                            FROM teams t , salaries s 
-                            WHERE t.ID = s.teamID and t.`year` = s.year and t.`year` = %s
-                            GROUP BY t.ID) p1,
-                            (SELECT t.ID, sum(s.salary) as tot
-                            FROM teams t , salaries s 
-                            WHERE t.ID = s.teamID and t.`year` = s.year and t.`year` = %s
-                            GROUP BY t.ID) p2
+        query = """SELECT p1.ID as u, p2.ID as v, p1.totSalary+p2.totSalary as weight
+                    FROM
+                        (select t.teamCode, t.ID, sum(s.salary) as totSalary
+                        from salaries s, teams t, appearances a
+                        where s.`year` = t.`year` and t.`year` = a.`year` 
+                        and a.`year` = %s
+                        and t.ID = a.teamID 
+                        and s.playerID = a.playerID 
+                        group by t.teamCode) p1,
+                        (select t.teamCode, t.ID, sum(s.salary) as totSalary
+                        from salaries s, teams t, appearances a
+                        where s.`year` = t.`year` and t.`year` = a.`year` 
+                        and a.`year` = %s
+                        and t.ID = a.teamID 
+                        and s.playerID = a.playerID 
+                        group by t.teamCode) p2
                     WHERE p1.ID<p2.ID"""
 
         cursor.execute(query, (year,year))
