@@ -8,11 +8,43 @@ class Controller:
         # the model, which implements the logic of the program and holds the data
         self._model = model
 
+    def fillddAnno(self):
+        for year in self._model.getAllYears():
+            self._view._ddAnno.options.append(ft.dropdown.Option(year, on_click=self.handleYearSelection))
+
+    def handleYearSelection(self, e):
+        year = e.control.key
+        if not year:
+            self._view.create_alert('Seleziona un anno!')
+            return
+        self._view._ddSquadra.options.clear()
+        self._view._txtOutSquadre.controls.clear()
+        teams = self._model.getAllTeamsYear(year)
+        self._view._txtOutSquadre.controls.append(ft.Text(f'{len(teams)} squadre nel {year}:'))
+        for team in teams:
+            self._view._ddSquadra.options.append(ft.dropdown.Option(key=team.ID, text=f'{team.teamCode} - {team.name}',
+                                                                    data=team,
+                                                                    on_click=self._saveTeam))
+            self._view._txtOutSquadre.controls.append(ft.Text(f'{team.teamCode} - {team.name}'))
+        self._view.update_page()
+
     def handleCreaGrafo(self, e):
-        pass
+        self._view._txt_result.controls.clear()
+        n, ed = self._model.buildGraph()
+        self._view._txt_result.controls.append(ft.Text(f'Grafo creato con {n} nodi e {ed} archi.', color='green'))
+        self._view.update_page()
 
     def handleDettagli(self, e):
-        pass
+        team = self._team
+        if not team:
+            self._view.create_alert('Scegliere una squadra!')
+        details = self._model.getTeamDetails(team)
+        for item in details:
+            self._view._txt_result.controls.append(ft.Text(f'{item[0]} - {item[1]}'))
+        self._view.update_page()
 
     def handlePercorso(self, e):
         pass
+
+    def _saveTeam(self, e):
+        self._team = e.control.data

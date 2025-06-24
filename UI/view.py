@@ -50,6 +50,9 @@ class View(ft.UserControl):
 
         self._txt_result = ft.ListView(expand=1, spacing=10, padding=20, auto_scroll=True)
         self._page.controls.append(ft.Container(self._txt_result, bgcolor="#deeded", height=350))
+
+        self._controller.fillddAnno()
+
         self._page.update()
 
     @property
@@ -62,6 +65,12 @@ class View(ft.UserControl):
 
     def set_controller(self, controller):
         self._controller = controller
+
+    def create_alert(self, message):
+        dlg = ft.AlertDialog(title=ft.Text(message))
+        self._page.dialog = dlg
+        dlg.open = True
+        self._page.update()
 
     def update_page(self):
         self._page.update()
