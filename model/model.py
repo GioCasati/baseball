@@ -1,3 +1,4 @@
+from copy import deepcopy
 import networkx as nx
 from database.DAO import DAO
 from model.team import Team
@@ -8,6 +9,8 @@ class Model:
         self._idMapTeams = dict()
         self._graph = nx.Graph()
         self._year = None
+        self.heaviestPath = []
+        self.highestCost = 0
 
 
     def getAllYears(self):
@@ -35,3 +38,29 @@ class Model:
             details.append((t, self._graph[team][t]['weight']))
         details.sort(key=lambda row: -row[1])
         return details
+
+    def getHeaviestPath(self, start):
+        self.heaviestPath = []
+        self.highestCost = 0
+        parziale = [start]
+        for node in nx.neighbors(self._graph, start):
+            parziale.append(node)
+            self._ricorsione(parziale)
+            parziale.pop()
+        return self.heaviestPath, self.highestCost
+
+    def _ricorsione(self, parziale):
+        if newCosto := self._getCosto(parziale) > self.highestCost:
+            self.highestCost = newCosto
+            self.heaviestPath = deepcopy(parziale)
+        for node in  nx.neighbors(self._graph, parziale[-1]):
+            if node not in parziale and self._graph[parziale[-2]][parziale[-1]]['weight'] > self._graph[parziale[-1]][node]['weight']:
+                parziale.append(node)
+                self._ricorsione(parziale)
+                parziale.pop()
+
+    def _getCosto(self, parziale):
+        costo = 0
+        for i in range(len(parziale)-1):
+            costo += self._graph[parziale[i]][parziale[i+1]]['weight']
+        return costo

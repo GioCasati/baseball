@@ -1,4 +1,5 @@
 import flet as ft
+import networkx as nx
 
 
 class Controller:
@@ -35,6 +36,7 @@ class Controller:
         self._view.update_page()
 
     def handleDettagli(self, e):
+        self._view._txt_result.controls.clear()
         team = self._team
         if not team:
             self._view.create_alert('Scegliere una squadra!')
@@ -44,7 +46,15 @@ class Controller:
         self._view.update_page()
 
     def handlePercorso(self, e):
-        pass
+        self._view._txt_result.controls.clear()
+        team = self._team
+        if not team:
+            self._view.create_alert('Scegliere una squadra!')
+        path, w = self._model.getHeaviestPath(team)
+        self._view._txt_result.controls.append(ft.Text(f'Percorso trovato lungo {len(path)} con peso {w}:'))
+        for node in path:
+            self._view._txt_result.controls.append(ft.Text(node))
+        self._view.update_page()
 
     def _saveTeam(self, e):
         self._team = e.control.data
