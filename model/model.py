@@ -50,7 +50,7 @@ class Model:
         return self.heaviestPath, self.highestCost
 
     def _ricorsione(self, parziale):
-        if newCosto := self._getCosto(parziale) > self.highestCost:
+        if (newCosto := self._getCosto(parziale)) > self.highestCost:
             self.highestCost = newCosto
             self.heaviestPath = deepcopy(parziale)
         for node in  nx.neighbors(self._graph, parziale[-1]):
